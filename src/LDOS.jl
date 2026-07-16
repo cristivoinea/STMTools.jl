@@ -13,9 +13,9 @@ function eigensystem_corrected(
     charge_qp::Rational;
     full::Bool=false,
 )
-    hmt_mat = OpMat(Operator(bs, tms_hmt); disp_std=false)
+    hmt_mat = OpMat{Float64}(Operator(bs, tms_hmt); disp_std=false)
     if bs.dim < 100 || full
-        enrg, st = eigen(Matrix(hmt_mat))
+        enrg, st = eigen(Hermitian(Matrix{Float64}(hmt_mat)))
     else
         enrg, st = GetEigensystem(hmt_mat, 10; disp_std=false)
     end
