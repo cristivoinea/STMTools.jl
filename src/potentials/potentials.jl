@@ -1,7 +1,10 @@
 export get_pseudopotentials, get_impurity_potentials, get_tip_potentials
 
 
-function get_pseudopotentials(nm, nbr_g, d_g; eps_z=3.25, eps_xy=6.6, rpa=false, nuN=[], alpha=1.85)
+function get_pseudopotentials(nm, nbr_g, d_g; 
+    eps_z::Real=3.25, eps_xy::Real=6.6, 
+    rpa::Bool=false, nuN::AbstractVector{<:Real}=Float64[], alpha::Real=1.85
+)
     beta = sqrt(eps_xy/eps_z)
     eps = sqrt(eps_z*eps_xy)
     alpha /= eps 
@@ -34,7 +37,10 @@ function get_pseudopotentials(nm, nbr_g, d_g; eps_z=3.25, eps_xy=6.6, rpa=false,
 end
 
 
-function get_impurity_potentials(nm, nbr_g, d_g, q_i, d_i; eps_z=3.25, eps_xy=6.6, rpa=false, nuN=[], alpha=1.85)
+function get_impurity_potentials(nm, nbr_g, d_g, q_i, d_i; 
+    eps_z::Real=3.25, eps_xy::Real=6.6, 
+    rpa::Bool=false, nuN::AbstractVector{<:Real}=Float64[], alpha::Real=1.85
+)
     beta = sqrt(eps_xy/eps_z)
     eps = sqrt(eps_z*eps_xy)
     alpha /= eps 
@@ -69,7 +75,10 @@ function get_impurity_potentials(nm, nbr_g, d_g, q_i, d_i; eps_z=3.25, eps_xy=6.
 end
 
 
-function get_tip_potentials(nm, thetas, nbr_g, d_g, q_i, d_i, r_t, d_t; eps_z=3.25, eps_xy=6.6, rpa=false, nuN=[], alpha=1.85)
+function get_tip_potentials(nm, thetas, nbr_g, d_g, q_i, d_i, r_t, d_t; 
+    eps_z::Real=3.25, eps_xy::Real=6.6, 
+    rpa::Bool=false, nuN::AbstractVector{<:Real}=Float64[], alpha::Real=1.85
+)
     beta = sqrt(eps_xy/eps_z)
     eps = sqrt(eps_z*eps_xy)
     alpha /= eps 
