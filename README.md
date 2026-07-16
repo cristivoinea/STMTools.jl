@@ -46,15 +46,18 @@ field = 0.
 width = 0.01
 enrg_res = 0.01
 phi = pi/2
-thetas = 0:0.01:pi
+thetas = 0:0.02:pi
 ```
 
 The interaction pseudopotentials and the one-body potentials from the impurity, tip, and linear field need to be retrieved first:
-```
+```julia
+interaction_pspot = get_pseudopotentials(nm, nbr_g, d_g; rpa=true)
+impurity_pot = get_impurity_potentials(nm, nbr_g, d_g, q_i, d_i; rpa=true)
+tip_pot = get_tip_potentials(nm, thetas, nbr_g, d_g, q_i, d_i, r_t, d_t; rpa=true)
 ```
 
 The LDOS can now be computed and visualised:
-```
+```julia
 enrg_range, dist_range, ldos = ldos_anisotropic(
     ne, nm, bias, thetas, phi,
     interaction_pspot, impurity_pot; tip_pot = tip_pot, field=field,
@@ -62,6 +65,7 @@ enrg_range, dist_range, ldos = ldos_anisotropic(
     width=width, enrg_res=enrg_res)
 
 
-heatmap(dist_range, enrg_range, ldos)
+p = heatmap(dist_range, enrg_range, ldos, 
+            yguide=L"E\,\,(E_C)", xguide=L"x\,\,(\ell_B)", ylims=(-1.5, 0.))
 ```
-![](misc/ldos_quick_start.png)
+![asda](misc/ldos_quick_start.png)
