@@ -108,7 +108,7 @@ function ldos_anisotropic(
                 ne, nm, bs, tms_hmt, interaction_pspot, nbr_qp, charge_qp)
 
         enrg_tunneling, st_tunneling = eigensystem_corrected(
-                ne, nm, bs_tunneling, tms_hmt, interaction_pspot, nbr_qp + bias*denominator(charge_qp), charge_qp, full=true)
+                ne + bias, nm, bs_tunneling, tms_hmt, interaction_pspot, nbr_qp + bias*denominator(charge_qp), charge_qp, full=true)
 
         enrg_tunneling_corrected .= enrg_tunneling .- enrg_initial[1] .- mu
 
@@ -126,7 +126,7 @@ function ldos_anisotropic(
                 ne, nm, bs, tms_hmt, interaction_pspot, nbr_qp, charge_qp)
 
             enrg_tunneling, st_tunneling = eigensystem_corrected(
-                ne, nm, bs_tunneling, tms_hmt, interaction_pspot, nbr_qp + bias*denominator(charge_qp), charge_qp, full=true)
+                ne + bias, nm, bs_tunneling, tms_hmt, interaction_pspot, nbr_qp + bias*denominator(charge_qp), charge_qp, full=true)
 
             GS_tunneling = zeros(bs_tunneling.dim, length(ms))
             for j in eachindex(ms)    
