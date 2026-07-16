@@ -24,23 +24,44 @@ using STMTools
 
 ## Basic use
 
-The following example evaluates a single-gate screened electron-electron
-interaction at momentum `q = 1`:
+The following example computes the STM extraction spectrum for a Laughlin state with 5 particles and 3 additional quasiparticles. First, one needs to define the setup, including the tunneling direction (bias), impurity charge, and gate/impurity/tip distance from the sample.
 
 ```julia
-using STMTools
+using STMTools, Plots
 
-q = 1.0
-eps_xy = 6.6
-eps_z = 3.25
-beta = sqrt(eps_xy / eps_z)
-eps = sqrt(eps_xy * eps_z)
-gate_distance = 7.0
+ne = 5
+nbr_qp = 3
+charge_qp = 1//3
+nm = 3*ne - 2 -nbr_qp
 
-Vq = v_interaction_singlegate_twobody(
-    q, beta, eps, gate_distance,
-)
+bias = -1
+impurity_charge = -1.
+d_i = 0.
+d_g = 7.
+nbr_g = 1.
+d_t  = 0.2
+rpa = true
+field = 0.
 
-println(round(Vq; digits=3))
-# Result: 2.231
+width = 0.01
+enrg_res = 0.01
+phi = pi/2
+thetas = 0:0.01:pi
 ```
+
+The interaction pseudopotentials and the one-body potentials from the impurity, tip, and linear field need to be retrieved first:
+```
+```
+
+The LDOS can now be computed and visualised:
+```
+enrg_range, dist_range, ldos = ldos_anisotropic(
+    ne, nm, bias, thetas, phi,
+    interaction_pspot, impurity_pot; tip_pot = tip_pot, field=field,
+    nbr_qp=nbr_qp, charge_qp=charge_qp,
+    width=width, enrg_res=enrg_res)
+
+
+heatmap(dist_range, enrg_range, ldos)
+```
+![](misc/ldos_quick_start.png)
