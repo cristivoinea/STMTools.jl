@@ -59,9 +59,7 @@ rpa = parsed_args["rpa"]
 
 eps_z = parsed_args["eps-z"]
 eps_xy = parsed_args["eps-xy"]
-beta = sqrt(eps_xy/eps_z)
-eps = sqrt(eps_z*eps_xy)
-alpha = parsed_args["alpha"]/eps 
+alpha = parsed_args["alpha"]
 
 nuN = parsed_args["nu-vec"]
 m_max = parsed_args["m-max"]
@@ -75,6 +73,6 @@ else
 end
 
 
-matrix_el = get_impurity_potentials(m_max, beta, eps, nbr_g, d_g, q_i, d_i; rpa=rpa, nuN=nuN, alpha=alpha)
+matrix_el = get_impurity_potentials(m_max, nbr_g, d_g, q_i, d_i; eps_z=eps_z, eps_xy=eps_xy, rpa=rpa, nuN=nuN, alpha=alpha)
 
 writedlm("./$(screening_tag)_impurity_qi_$(fmt(q_i))_di_$(fmt(d_i))_dg_$(fmt(d_g))$(rpa ? "_rpa" : "")_disk.dat", matrix_el)

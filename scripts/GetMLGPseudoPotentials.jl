@@ -49,9 +49,7 @@ rpa = parsed_args["rpa"]
 
 eps_z = parsed_args["eps-z"]
 eps_xy = parsed_args["eps-xy"]
-beta = sqrt(eps_xy/eps_z)
-eps = sqrt(eps_z*eps_xy)
-alpha = parsed_args["alpha"]/eps 
+alpha = parsed_args["alpha"]
 
 nuN = parsed_args["nu-vec"]
 m_max = parsed_args["m-max"]
@@ -67,6 +65,6 @@ else
     throw(ArgumentError("Number of gates in the setup cannot take values other than 0, 1, or 2."))
 end
 
-matrix_el = get_pseudopotentials(m_max, beta, eps, nbr_g, d_g; rpa=rpa, nuN=nuN, alpha=alpha)
+matrix_el = get_pseudopotentials(m_max, nbr_g, d_g; eps_z=eps_z, eps_xy=eps_xy, rpa=rpa, nuN=nuN, alpha=alpha)
 
 writedlm("./$(screening_tag)_coulomb_dg_$(fmt(d_g))$(rpa ? "_rpa" : "")_disk.dat", matrix_el)

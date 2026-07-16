@@ -98,9 +98,7 @@ phi = parsed_args["phi"]
 
 eps_z = parsed_args["eps-z"]
 eps_xy = parsed_args["eps-xy"]
-beta = sqrt(eps_xy/eps_z)
-eps = sqrt(eps_z*eps_xy)
-alpha = parsed_args["alpha"]/eps 
+alpha = parsed_args["alpha"]
 
 nuN = parsed_args["nu-vec"]
 
@@ -115,7 +113,7 @@ else
 end
 
 
-matrix_el = get_tip_potentials(nm, thetas, beta, eps, nbr_g, d_g, q_i, d_i, r_t, d_t; rpa=rpa, nuN=nuN, alpha=alpha)
+matrix_el = get_tip_potentials(nm, thetas, nbr_g, d_g, q_i, d_i, r_t, d_t; eps_z=eps_z, eps_xy=eps_xy, rpa=rpa, nuN=nuN, alpha=alpha)
 
 open(joinpath(output_dir, "$(screening_tag)_tip_2s_$(nm-1)_qi_$(fmt(q_i))_di_$(fmt(d_i))_dg_$(fmt(d_g))_dt_$(fmt(d_t))$(rpa ? "_rpa" : "")_disk.dat"); write=true) do f
          write(f, "#theta #V_m\n")
