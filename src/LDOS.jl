@@ -15,7 +15,7 @@ function eigensystem_corrected(
 )
     hmt_mat = OpMat{Float64}(Operator(bs, tms_hmt); disp_std=false)
     if bs.dim < 100 || full
-        enrg, st = eigen(Hermitian(Matrix{Float64}(hmt_mat)))
+        enrg, st = eigen(Hermitian(Matrix(hmt_mat)))
     else
         enrg, st = GetEigensystem(hmt_mat, 10; disp_std=false)
     end
