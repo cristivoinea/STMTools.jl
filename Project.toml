@@ -1,0 +1,22 @@
+name = "STMTools"
+uuid = "df450454-2389-4057-aa4f-e32bcb7e3124"
+version = "0.1.0"
+authors = ["Cristian Voinea", "Zlatko Papic"]
+
+[deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+ClassicalOrthogonalPolynomials = "b30e2e7b-c4ee-47da-9d5f-2c5c27239acd"
+DataInterpolations = "82cc6244-b520-54b8-b5a6-8a565e85f1d0"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+FuzzifiED = "b45b6d2d-92f2-400f-a7df-d2d897927e5f"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+WignerD = "87c4ff3e-34df-11e9-37a7-516cea4e0402"
+
+[compat]
+Printf = "1.11.0"
+WignerD = "0.1.4"
+julia = "1.12"
