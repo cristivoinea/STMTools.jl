@@ -13,6 +13,7 @@ using WignerD
 
 include("potentials/polarization_model.jl")
 include("potentials/potentials_qspace.jl")
+include("potentials/potentials.jl")
 include("utils.jl")
 include("LDOS.jl")
 

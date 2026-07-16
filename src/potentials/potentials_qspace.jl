@@ -38,8 +38,8 @@ function v_impurity_singlegate_onebody(q::Float64, beta::Float64, eps::Float64, 
 end
 
 
-function charge_tip_singlegate_onebody(q::Float64, r::Float64, vq_imp::Function, R_t::Float64, d_t::Float64)
-    return -R_t*vq_imp(q) * exp(-q*d_t) * q * besselj0(q*r) / (2*π)
+function charge_tip_singlegate_onebody(q::Float64, x::Float64, vq_imp::Function, r_t::Float64, d_t::Float64)
+    return -r_t*vq_imp(q) * exp(-q*d_t) * q * besselj0(q*x) / (2*π)
 end
 
 
