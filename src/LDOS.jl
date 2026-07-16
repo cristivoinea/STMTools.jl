@@ -119,7 +119,7 @@ function ldos_anisotropic(
         overlaps = (st_tunneling' * GS_tunneling) * wf_matrix
     else
         for i in eachindex(thetas)
-            tms_tip = get_onebody_terms(nm, tip_pot[i, :]; theta=thetas[i], phi=phi)
+            tms_tip = get_onebody_terms(nm, tip_pot[:, i]; theta=thetas[i], phi=phi)
             tms_hmt = SimplifyTerms(tms_hmt_notip + tms_tip)
 
             enrg_initial, st_initial = eigensystem_corrected(
