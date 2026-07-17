@@ -7,6 +7,64 @@ export fmt
 
 using Printf
 
+"""
+    _canonicalize_csc!(colptr, rowval, nzval)
+
+Sort the row indices and corresponding nonzero values within each CSC column.
+FuzzifiED's `OpMat` storage is not guaranteed to be in the canonical row
+order required by `SparseMatrixCSC` operations.
+
+This is the local equivalent of the fix proposed in
+https://github.com/FuzzifiED/FuzzifiED.jl/pull/7.
+"""
+function _canonicalize_csc!(
+    colptr::Vector{Int},
+    rowval::Vector{Int},
+    nzval,
+)
+    for col in 1:(length(colptr)-1)
+        indices = colptr[col]:(colptr[col+1]-1)
+        length(indices) <= 1 && continue
+
+        permutation = sortperm(view(rowval, indices))
+        rowval[indices] = rowval[indices][permutation]
+        nzval[indices] = nzval[indices][permutation]
+    end
+    return nothing
+end
+
+
+"""
+    SparseMatrixCSC_fix(mat::OpMat)
+
+Convert a FuzzifiED `OpMat` to a canonical `SparseMatrixCSC` and then apply
+the symmetry convention recorded by `mat.sym_q`.
+
+This local implementation follows FuzzifiED.jl pull request #7 and can be
+removed once STMTools requires a FuzzifiED release containing that fix.
+"""
+function SparseMatrixCSC_fix(mat::OpMat)
+    colptr = copy(mat.colptr)
+    rowval = copy(mat.rowid)
+    nzval = copy(mat.elval)
+    _canonicalize_csc!(colptr, rowval, nzval)
+
+    sparse_mat = SparseMatrixCSC(
+        mat.dimf, mat.dimd, colptr, rowval, nzval)
+    if mat.sym_q == 0
+        return sparse_mat
+    elseif mat.sym_q == 1
+        return sparse_mat + adjoint(sparse_mat) -
+            spdiagm(0 => diag(sparse_mat))
+    elseif mat.sym_q == 2
+        return sparse_mat + transpose(sparse_mat) -
+            spdiagm(0 => diag(sparse_mat))
+    else
+        throw(ArgumentError("Unknown OpMat symmetry flag: $(mat.sym_q)."))
+    end
+end
+
+
 function parse_float_range(s::AbstractString)
     parts = split(s, ":")
     nums = parse.(Float64, parts)

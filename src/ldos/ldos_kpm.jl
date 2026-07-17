@@ -18,9 +18,6 @@ end
 
 
 function _kpm_gershgorin_bounds(hmt::SparseMatrixCSC)
-    size(hmt, 1) == size(hmt, 2) ||
-        throw(DimensionMismatch("Hamiltonian must be square."))
-
     dim = size(hmt, 1)
     centers = zeros(Float64, dim)
     radii = zeros(Float64, dim)
@@ -53,8 +50,6 @@ function _kpm_moments(
 )
     num_moments >= 2 ||
         throw(ArgumentError("num_moments must be at least 2."))
-    size(hmt, 1) == size(hmt, 2) ||
-        throw(DimensionMismatch("Hamiltonian must be square."))
     length(state) == size(hmt, 1) ||
         throw(DimensionMismatch("State and Hamiltonian dimensions do not match."))
 
@@ -188,28 +183,14 @@ function _kpm_reconstruct(
 end
 
 
-function _kpm_probe_state(
-    fermion_op,
-    initial_state::AbstractVector,
-    wavefunction::AbstractVector,
-    final_dim::Integer,
-)
-    probe = zeros(ComplexF64, final_dim)
-    @inbounds for j in eachindex(fermion_op)
-        probe .+= wavefunction[j].*ComplexF64.(fermion_op[j]*initial_state)
-    end
-    return probe
-end
-
-
-function _kpm_plot_hamiltonian(
+function _kpm_hamiltonian(
     bs_tunneling::Basis,
     tms_hmt::Terms,
     energy_shift::Real,
 )
     raw_hmt = OpMat{Float64}(
         Operator(bs_tunneling, tms_hmt); disp_std=false)
-    sparse_hmt = SparseMatrixCSC(raw_hmt)
+    sparse_hmt = SparseMatrixCSC_fix(raw_hmt)
     return -sparse_hmt +
         spdiagm(0 => fill(float(energy_shift), bs_tunneling.dim))
 end
@@ -270,21 +251,21 @@ function ldos_anisotropic_kpm(
             throw(DimensionMismatch("tip_pot must have one column per theta."))
     end
 
+    num_positions = length(thetas)
     qnd = [GetNeQNDiag(nm)]
     bs = Basis(Confs(nm, [ne], qnd))
     bs_tunneling = Basis(Confs(nm, [ne + bias], qnd))
 
-    ms = (nm-1):-2:-(nm-1)
-    wf_matrix = zeros(ComplexF64, length(ms), length(thetas))
-    fermion_op = []
-    for k in eachindex(ms)
+    wf_matrix = zeros(ComplexF64, nm, num_positions)
+    fermion_op = Vector{Operator}(undef, nm)
+    for k in 1:nm
         wf_matrix[k, :] = computeYQQm.(nm, nm-k, thetas, phi)
-        push!(fermion_op, Operator(
+        fermion_op[k] = Operator(
             bs,
             bs_tunneling,
             [Term(1, [(bias == 1) ? 1 : 0, nm-k+1])];
             red_q=0,
-        ))
+        )
     end
 
     tms_impurity_isotropic = get_onebody_terms(nm, impurity_pot)
@@ -306,15 +287,20 @@ function ldos_anisotropic_kpm(
         charge_qp,
     )
 
-    moments = Vector{Any}(undef, length(thetas))
-    scalings = Vector{Tuple{Float64,Float64}}(undef, length(thetas))
-    column_bounds = Vector{Tuple{Float64,Float64}}(undef, length(thetas))
+    moments = Vector{Vector{ComplexF64}}(undef, num_positions)
+    scalings = Vector{Tuple{Float64,Float64}}(undef, num_positions)
+    column_bounds = Vector{Tuple{Float64,Float64}}(undef, num_positions)
 
-    function register_column!(i, hmt, probe)
+    function register_column!(i, hmt, initial_state)
+        probe_state = zeros(ComplexF64, bs_tunneling.dim)
+        for j in eachindex(fermion_op)
+            probe_state .+= wf_matrix[j, i].*
+                ComplexF64.(fermion_op[j]*initial_state)
+        end
         local_bounds = bounds === nothing ?
             _kpm_gershgorin_bounds(hmt) : Tuple(float.(bounds))
         scaling = _kpm_scaling(local_bounds, safety)
-        moments[i] = _kpm_moments(hmt, probe, num_moments, scaling)
+        moments[i] = _kpm_moments(hmt, probe_state, num_moments, scaling)
         scalings[i] = scaling
         column_bounds[i] = local_bounds
         return nothing
@@ -325,14 +311,11 @@ function ldos_anisotropic_kpm(
             ne, nm, bs, tms_hmt_notip, interaction_pspot,
             nbr_qp, charge_qp)
         energy_shift = final_background + enrg_initial[1] + mu
-        hmt = _kpm_plot_hamiltonian(
+        hmt = _kpm_hamiltonian(
             bs_tunneling, tms_hmt_notip, energy_shift)
 
         for i in eachindex(thetas)
-            probe = _kpm_probe_state(
-                fermion_op, st_initial[:, 1], wf_matrix[:, i],
-                bs_tunneling.dim)
-            register_column!(i, hmt, probe)
+            register_column!(i, hmt, st_initial[:, 1])
         end
     else
         for i in eachindex(thetas)
@@ -343,12 +326,9 @@ function ldos_anisotropic_kpm(
                 ne, nm, bs, tms_hmt, interaction_pspot,
                 nbr_qp, charge_qp)
             energy_shift = final_background + enrg_initial[1] + mu
-            hmt = _kpm_plot_hamiltonian(
+            hmt = _kpm_hamiltonian(
                 bs_tunneling, tms_hmt, energy_shift)
-            probe = _kpm_probe_state(
-                fermion_op, st_initial[:, 1], wf_matrix[:, i],
-                bs_tunneling.dim)
-            register_column!(i, hmt, probe)
+            register_column!(i, hmt, st_initial[:, 1])
         end
     end
 
@@ -358,7 +338,7 @@ function ldos_anisotropic_kpm(
     enrg_range = (enrg_min - enrg_spread):enrg_res:(enrg_max + enrg_spread)
     dist_range = sqrt((nm-1)/2).*thetas
 
-    ldos = zeros(Float64, length(enrg_range), length(thetas))
+    ldos = zeros(Float64, length(enrg_range), num_positions)
     for i in eachindex(thetas)
         kernel_values = _kpm_kernel(
             kernel, num_moments, width, scalings[i][1], kernel_parameter)

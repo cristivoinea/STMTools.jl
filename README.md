@@ -44,7 +44,7 @@ rpa = true
 field = 0.
 
 width = 0.01
-enrg_res = 0.01
+enrg_res = 0.002
 phi = pi/2
 thetas = 0:0.02:pi
 ```
@@ -65,7 +65,24 @@ enrg_range, dist_range, ldos = ldos_anisotropic(
     width=width, enrg_res=enrg_res)
 
 
-p = heatmap(dist_range, enrg_range, ldos, 
+p = heatmap(dist_range, enrg_range, ldos, title="LDOS using ED",
             yguide=L"E\,\,(E_C)", xguide=L"x\,\,(\ell_B)", ylims=(-1.5, 0.))
 ```
-![asda](misc/ldos_quick_start.png)
+<img src="misc/ldos_quick_start.png"
+     width="500">
+
+If one wants to trade resolution over speed, then the LDOS can be also computed using the kernel polynomial method instead of full exact diagonalization.
+```julia
+enrg_range, dist_range, ldos = ldos_anisotropic_kpm(
+    ne, nm, bias, thetas, phi,
+    interaction_pspot, impurity_pot; tip_pot = tip_pot, field=field,
+    nbr_qp=nbr_qp, charge_qp=charge_qp,
+    width=width, enrg_res=enrg_res,
+    num_moments=2048)
+
+
+p = heatmap(dist_range, enrg_range, ldos, title="LDOS using KPM",
+            yguide=L"E\,\,(E_C)", xguide=L"x\,\,(\ell_B)", ylims=(-1.5, 0.))
+```
+<img src="misc/ldos_kpm_quick_start.png"
+     width="500">
