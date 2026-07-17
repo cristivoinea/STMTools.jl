@@ -71,7 +71,7 @@ function ldos_anisotropic(
     tip_pot::Union{Nothing,AbstractMatrix{<:Real}}=nothing,
     field::Real=0.0,
     nbr_qp::Integer=0,
-    charge_qp::Rational=1,
+    charge_qp::Rational=1//1,
     width::Real=0.01,
     enrg_res::Real=0.001,
 )
